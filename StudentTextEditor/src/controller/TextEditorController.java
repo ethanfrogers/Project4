@@ -1,26 +1,43 @@
 package controller;
 
-import view.TextEditorPanel;
+import controller.command.Command;
+import java.util.ArrayList;
 
 import model.TextEditorModel;
-import model.LengthStyle;
 import model.StyleList;
 import model.StylePrinter;
 
-import java.util.List;
-import java.util.LinkedList;
 
 public class TextEditorController
 {
 	private TextEditorView view;
 	
 	private TextEditorModel model;
-	
+	private ArrayList<Command> undoCommands = new <Command>ArrayList();
+        private ArrayList<Command> redoCommands = new <Command>ArrayList();
+        
 	public TextEditorController(TextEditorModel modelRef)
 	{
 		setView(null);
 		setModel(modelRef);
 	}
+        
+        public void addUndoCommand(Command c){
+            undoCommands.add(c);
+        }
+       
+        public void removeUndoCommand(Command c){
+            undoCommands.remove(c);
+        }
+        
+        public void addRedoCommand(Command c){
+            redoCommands.add(c);
+        }
+        
+        public void removeRedoCommand(Command c){
+            redoCommands.remove(c);
+        }
+        
 	public void setView(TextEditorView viewRef)
 	{
 		view = viewRef;
@@ -47,10 +64,34 @@ public class TextEditorController
 	
 	public void undo()
 	{
-            
+            try
+            {
+                int index = undoCommands.size() - 1;
+                Command cmd = undoCommands.get(index);
+                cmd.execute();
+                addRedoCommand(cmd);
+                removeUndoCommand(cmd);
+            }
+            catch(ArrayIndexOutOfBoundsException iob){
+                System.out.println("NO UNDO COMMANDS");
+            }
+           
+           
 	}
 	public void redo()
 	{
+            try
+            {
+                int index = redoCommands.size() - 1;
+                Command cmd = redoCommands.get(index);
+                cmd.execute();
+                addUndoCommand(cmd);
+                removeRedoCommand(cmd);
+            }
+            catch(ArrayIndexOutOfBoundsException iob)
+            {
+                System.out.println("NO REDO COMMANDS");
+            }
 	}
 	
 	public void textInserted(int start, int length)

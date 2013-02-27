@@ -10,5 +10,5 @@ package controller.command;
  */
 public interface Command {
     
-    public abstract void execute(int start, int length);
+    public abstract void execute();
 }

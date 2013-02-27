@@ -425,10 +425,12 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 	{
 		public void actionPerformed(ActionEvent e)
 		{
-                        System.out.println("Bold button pressed");
 			int start = text.getSelectionStart();
                         BoldCommand cmd = new BoldCommand(controller, model);
-                        cmd.execute(start, text.getSelectionLength());
+                        cmd.setStart(start);
+                        cmd.setLength(text.getSelectionLength());
+                        cmd.execute();
+                        controller.addUndoCommand(cmd);
 			text.requestFocus();
 		}
 	}
@@ -439,7 +441,10 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 		{
 			int start = text.getSelectionStart();
                         ItalicCommand cmd = new ItalicCommand(controller,model);
-                        cmd.execute(start, text.getSelectionLength());
+                        cmd.setStart(start);
+                        cmd.setLength(text.getSelectionLength());
+                        cmd.execute();
+                        controller.addUndoCommand(cmd);
 			text.requestFocus();
 		}
 	}
@@ -450,7 +455,10 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 		{
 			int start = text.getSelectionStart();
                         UnderlineCommand cmd = new UnderlineCommand(controller, model);
-                        cmd.execute(start, text.getSelectionLength());
+                        cmd.setStart(start);
+                        cmd.setLength(text.getSelectionLength());
+                        cmd.execute();
+                        controller.addUndoCommand(cmd);
 			text.requestFocus();
 		}
 	}
