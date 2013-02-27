@@ -163,6 +163,17 @@ public class JTextEditor extends JTextPane
 	{
 		return getStylesInRange(0, getText().length());
 	}
+        //-----------------------------------------------------------------------------
+        //Color Style Methods
+        //-----------------------------------------------------------------------------
+        public boolean isColor(int testIndex)
+        {
+                return getStyleAtIndex(testIndex).isColor();
+        }
+        public void setColor(int start, int length, boolean color)
+        {
+                setRangeStyle(start, length, StyleCreator.getColorStyle(color || length == 0),color);
+        }
 	
 	// ----------------------------------------------------------------------------
 	// Bold Style Methods

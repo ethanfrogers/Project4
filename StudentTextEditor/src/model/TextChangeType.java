@@ -6,5 +6,6 @@ public enum TextChangeType
 	REMOVE,
 	BOLD,
 	ITALIC,
-	UNDERLINE
+	UNDERLINE,
+        COLOR
 }

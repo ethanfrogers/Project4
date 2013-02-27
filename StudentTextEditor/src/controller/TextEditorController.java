@@ -29,7 +29,9 @@ public class TextEditorController
 	{
 		model = modelRef;
 	}
-	
+	public void setColor(int start, int length, boolean colorOn){
+                model.setColor(start, length, colorOn);
+        }
 	public void setBold(int start, int length, boolean boldOn)
 	{
 		model.setBold(start, length, boldOn);
@@ -45,6 +47,7 @@ public class TextEditorController
 	
 	public void undo()
 	{
+            
 	}
 	public void redo()
 	{

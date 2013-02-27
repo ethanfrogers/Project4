@@ -56,6 +56,18 @@ public class TextEditorModel extends Observable implements TextEditorDocument
 	// ----------------------------------------------------------------------------
 	// Styles Functions
 	// ----------------------------------------------------------------------------
+        public void setColor(int start, int length, boolean colorOn){
+                styles.setColor(start, length, colorOn);
+                updateObservers(new TextChange(TextChangeType.COLOR, start, length));
+        }
+        
+        public boolean isColor(int index){
+            return styles.isColor(index);
+        }
+        
+        public boolean isRangeColor(int start, int length){
+            return styles.isRangeColor(start, length);
+        }
 	public void setBold(int start, int length, boolean boldOn)
 	{
 		styles.setBold(start, length, boldOn);

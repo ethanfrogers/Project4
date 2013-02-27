@@ -1,5 +1,6 @@
 package model;
 
+import java.awt.Color;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -15,6 +16,18 @@ public class TextEditorStyle extends SimpleAttributeSet
 		setItalic(StyleConstants.isItalic(toCopy));
 		setUnderline(StyleConstants.isUnderline(toCopy));
 	}
+        
+        public boolean isColor()
+        {
+                if(StyleConstants.getForeground(this) != null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+        }
 	
 	public boolean isBold()
 	{
@@ -48,6 +61,11 @@ public class TextEditorStyle extends SimpleAttributeSet
 		StyleConstants.setUnderline(this, underline);
 	}
 	
+        public void setColor(boolean color)
+        {
+                StyleConstants.setForeground(this, Color.green);
+        }
+        
 	public boolean equals(TextEditorStyle rhs)
 	{
 		return isBold() == rhs.isBold() &&

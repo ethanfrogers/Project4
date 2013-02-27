@@ -2,11 +2,13 @@ package view;
 
 import controller.TextEditorController;
 import controller.TextEditorView;
+import controller.command.BoldCommand;
+import controller.command.ItalicCommand;
+import controller.command.UnderlineCommand;
 
 import model.StyleList;
 import model.TextEditorModel;
 import model.TextChange;
-import model.TextChangeType;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -55,12 +57,15 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 	
 	private JButton undoButton;
 	private JButton redoButton;
-	
+       
+        
 	private BoldActionListener boldAct;
 	private ItalicActionListener italicAct;
 	private UnderlineActionListener underlineAct;
 	private UndoActionListener undoAct;
 	private RedoActionListener redoAct;
+        private ColorActionListener colorAct;
+        
 	
 	private FileNameExtensionFilter plainTextFilter;
 	private FileNameExtensionFilter htmlFilter;
@@ -81,8 +86,8 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 		
 		initializeFilters();
 		
-		setUndoEnabled(false);
-		setRedoEnabled(false);
+		setUndoEnabled(true);
+		setRedoEnabled(true);
 		
 		textChangeFromEditor = false;
 		updatingFromModel = false;
@@ -96,7 +101,7 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 	
 	private void initializePanel()
 	{
-		setPreferredSize(new Dimension(400, 400));
+		setPreferredSize(new Dimension(450, 400));
 		setLayout(new BorderLayout());
 	}
 	
@@ -107,6 +112,7 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 		underlineAct = new UnderlineActionListener();
 		undoAct = new UndoActionListener();
 		redoAct = new RedoActionListener();
+                colorAct = new ColorActionListener();
 	}
 	private KeyStroke getControlPlusKey(int keyEventVal)
 	{
@@ -118,6 +124,7 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 		JPanel topButtons = new JPanel();
 		topButtons.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		
+                topButtons.add(createButton("format-text-color.png", colorAct));
 		topButtons.add(createButton("format-text-bold.png", boldAct));
 		topButtons.add(createButton("format-text-italic.png", italicAct));
 		topButtons.add(createButton("format-text-underline.png", underlineAct));
@@ -150,7 +157,8 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 		
 		add(textScroller, BorderLayout.CENTER);
 	}
-	
+        
+        
 	private void assignActions()
 	{
 		Keymap map = text.getKeymap();
@@ -231,6 +239,10 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 	{
 		text.setBold(start, length, boldOn);
 	}
+        public void setColor(int start, int length, boolean colorOn)
+        {
+                text.setColor(start,length,colorOn);
+        }
 	
 	public boolean isUnderline(int index)
 	{
@@ -244,6 +256,10 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 	{
 		return text.isBold(index);
 	}
+        public boolean isColor(int index)
+        {
+                return text.isColor(index);
+        }
 	
 	public void update(Observable observed, Object changed)
 	{
@@ -275,6 +291,8 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 				case UNDERLINE:
 					setUnderline(tc.getStartIndex(), tc.getLength(), !isUnderline(tc.getStartIndex()));
 					break;
+                                case COLOR:
+                                        setColor(tc.getStartIndex(),tc.getLength(),!isColor(tc.getStartIndex()));
 			}
 			
 			updatingFromModel = false;
@@ -389,12 +407,28 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 		}
 	}
 	
+        private class ColorActionListener extends AbstractAction implements ActionListener
+        {
+
+                public void actionPerformed(ActionEvent ae) 
+                {   
+                    System.out.println("Color change pressed");
+                    int start = text.getSelectionStart();
+                    //controller.setColor(start,text.getSelectionLength(),!text.isColor(start));
+                    Color c = TextColorChooser.colorChooser();
+                    System.out.println(c.toString());
+                    text.requestFocus();
+                }
+            
+        }
 	private class BoldActionListener extends AbstractAction implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e)
 		{
+                        System.out.println("Bold button pressed");
 			int start = text.getSelectionStart();
-			controller.setBold(start, text.getSelectionLength(), !text.isBold(start));
+                        BoldCommand cmd = new BoldCommand(controller, model);
+                        cmd.execute(start, text.getSelectionLength());
 			text.requestFocus();
 		}
 	}
@@ -404,7 +438,8 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 		public void actionPerformed(ActionEvent e)
 		{
 			int start = text.getSelectionStart();
-			controller.setItalic(start, text.getSelectionLength(), !text.isItalic(start));
+                        ItalicCommand cmd = new ItalicCommand(controller,model);
+                        cmd.execute(start, text.getSelectionLength());
 			text.requestFocus();
 		}
 	}
@@ -414,7 +449,8 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 		public void actionPerformed(ActionEvent e)
 		{
 			int start = text.getSelectionStart();
-			controller.setUnderline(start, text.getSelectionLength(), !text.isUnderline(start));
+                        UnderlineCommand cmd = new UnderlineCommand(controller, model);
+                        cmd.execute(start, text.getSelectionLength());
 			text.requestFocus();
 		}
 	}

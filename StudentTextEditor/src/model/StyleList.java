@@ -41,7 +41,20 @@ public class StyleList extends LinkedList<LengthStyle>
 		return result;
 	}
 	
-	
+	public void setColor(int start, int length, boolean colorOn){
+            addStyleToRange(start, length, StyleCreator.getColorStyle(colorOn));
+        }
+        
+        public boolean isColor(int index)
+        {
+            return doesIndexContainStyle(index, StyleCreator.getColorStyle());
+        }
+        
+        public boolean isRangeColor(int start, int length)
+        {
+            return doesRangeContainStyle(start, length, StyleCreator.getColorStyle());
+        }
+        
 	public void setBold(int start, int length, boolean boldOn)
 	{
 		addStyleToRange(start, length, StyleCreator.getBoldStyle(boldOn));

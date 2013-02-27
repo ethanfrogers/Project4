@@ -7,6 +7,15 @@ public abstract class StyleCreator
 		return new TextEditorStyle();
 	}
 	
+        public static TextEditorStyle getColorStyle(){
+            return getColorStyle(true);
+        }
+        
+        public static TextEditorStyle getColorStyle(boolean colorOn){
+            TextEditorStyle colorStyle = new TextEditorStyle();
+            colorStyle.setColor(colorOn);
+            return colorStyle;
+        }
 	public static TextEditorStyle getBoldStyle()
 	{
 		return getBoldStyle(true);
