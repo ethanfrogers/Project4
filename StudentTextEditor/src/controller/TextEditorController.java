@@ -62,6 +62,12 @@ public class TextEditorController
 		model.setUnderline(start, length, underlineOn);
 	}
 	
+        public Boolean getModelState(Command c,int start, int length)
+        {
+            return StateControl.getModelState(start, length, c, model);
+            
+        }
+        
 	public void undo()
 	{
             try

@@ -14,12 +14,10 @@ import model.TextEditorModel;
 public class ItalicCommand implements Command {
 
     TextEditorController controller;
-    TextEditorModel model;
     private int start, length;
     
-    public ItalicCommand(TextEditorController t, TextEditorModel m){
+    public ItalicCommand(TextEditorController t){
         controller = t;
-        model = m;
     }
     public int getStart() {
         return start;
@@ -37,10 +35,15 @@ public class ItalicCommand implements Command {
         this.length = length;
     }
     
+    public void setAttributes(int start, int length){
+        this.start = start;
+        this.length = length;
+    }
+    
 
     @Override
     public void execute() {
-       boolean state = model.isRangeItalic(start, length);
+       boolean state = controller.getModelState(this, start, length);
        controller.setItalic(start, length, !state);
     }
     

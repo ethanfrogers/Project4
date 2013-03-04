@@ -4,7 +4,12 @@ import controller.TextEditorController;
 import controller.TextEditorView;
 import controller.command.BoldCommand;
 import controller.command.ItalicCommand;
+import controller.command.MacroCommand;
+import controller.command.RedoCommand;
+import controller.command.TextInsertCommand;
+import controller.command.TextRemoveCommand;
 import controller.command.UnderlineCommand;
+import controller.command.UndoCommand;
 
 import model.StyleList;
 import model.TextEditorModel;
@@ -65,6 +70,7 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 	private UndoActionListener undoAct;
 	private RedoActionListener redoAct;
         private ColorActionListener colorAct;
+        private MacroActionListener macroAct;
         
 	
 	private FileNameExtensionFilter plainTextFilter;
@@ -101,7 +107,7 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 	
 	private void initializePanel()
 	{
-		setPreferredSize(new Dimension(450, 400));
+		setPreferredSize(new Dimension(525, 400));
 		setLayout(new BorderLayout());
 	}
 	
@@ -113,6 +119,7 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 		undoAct = new UndoActionListener();
 		redoAct = new RedoActionListener();
                 colorAct = new ColorActionListener();
+                macroAct = new MacroActionListener();
 	}
 	private KeyStroke getControlPlusKey(int keyEventVal)
 	{
@@ -128,6 +135,7 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 		topButtons.add(createButton("format-text-bold.png", boldAct));
 		topButtons.add(createButton("format-text-italic.png", italicAct));
 		topButtons.add(createButton("format-text-underline.png", underlineAct));
+                topButtons.add(createButton("command-macro.png",macroAct));
 		
 		undoButton = createButton("edit-undo.png", undoAct);
 		redoButton = createButton("edit-redo.png", redoAct);
@@ -407,6 +415,19 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 		}
 	}
 	
+        private class MacroActionListener extends AbstractAction implements ActionListener
+        {
+
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    MacroCommand cmd = new MacroCommand(controller);
+                    cmd.useDefaultMacro(text.getSelectionStart(), text.getSelectionLength());
+                    controller.addUndoCommand(cmd);
+                    cmd.execute();
+                }
+            
+        }
+        
         private class ColorActionListener extends AbstractAction implements ActionListener
         {
 
@@ -426,7 +447,7 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 		public void actionPerformed(ActionEvent e)
 		{
 			int start = text.getSelectionStart();
-                        BoldCommand cmd = new BoldCommand(controller, model);
+                        BoldCommand cmd = new BoldCommand(controller);
                         cmd.setStart(start);
                         cmd.setLength(text.getSelectionLength());
                         cmd.execute();
@@ -440,7 +461,7 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 		public void actionPerformed(ActionEvent e)
 		{
 			int start = text.getSelectionStart();
-                        ItalicCommand cmd = new ItalicCommand(controller,model);
+                        ItalicCommand cmd = new ItalicCommand(controller);
                         cmd.setStart(start);
                         cmd.setLength(text.getSelectionLength());
                         cmd.execute();
@@ -454,7 +475,7 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 		public void actionPerformed(ActionEvent e)
 		{
 			int start = text.getSelectionStart();
-                        UnderlineCommand cmd = new UnderlineCommand(controller, model);
+                        UnderlineCommand cmd = new UnderlineCommand(controller);
                         cmd.setStart(start);
                         cmd.setLength(text.getSelectionLength());
                         cmd.execute();
@@ -467,7 +488,8 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 	{
 		public void actionPerformed(ActionEvent e)
 		{
-			controller.undo();
+                        UndoCommand cmd = new UndoCommand(controller);
+                        cmd.execute();
 			text.requestFocus();
 		}
 	}
@@ -476,33 +498,53 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 	{
 		public void actionPerformed(ActionEvent e)
 		{
-			controller.redo();
+			RedoCommand cmd = new RedoCommand(controller);
+                        cmd.execute();
 			text.requestFocus();
 		}
 	}
 	
 	private class EditorDocumentListener implements DocumentListener
 	{
+            
 		public void changedUpdate(DocumentEvent e)
 		{
 		}
 		
 		public void insertUpdate(DocumentEvent e)
 		{
+                        
+
 			if(updatingFromModel == false)
 			{
 				textChangeFromEditor = true;
-				controller.textInserted(e.getOffset(), e.getLength());
+				//controller.textInserted(e.getOffset(), e.getLength());
+                                TextInsertCommand cmd = new TextInsertCommand(controller,model);
+                                cmd.setAttributes(e.getOffset(), e.getLength());
+                                TextRemoveCommand cmd1 = new TextRemoveCommand(controller, model);
+                                cmd1.setAttributes(e.getOffset(), e.getLength());                              
+                                cmd.execute();
+                                //controller.addUndoCommand(cmd1);
+                                text.requestFocus();
+                                
 				textChangeFromEditor = false;
 			}
 		}
 		
 		public void removeUpdate(DocumentEvent e)
 		{
+                        
+
 			if(updatingFromModel == false)
 			{
 				textChangeFromEditor = true;
-				controller.textRemoved(e.getOffset(), e.getLength());
+				//controller.textRemoved(e.getOffset(), e.getLength());
+                                TextRemoveCommand cmd = new TextRemoveCommand(controller,model);
+                                cmd.setAttributes(e.getOffset(), e.getLength());
+                                TextInsertCommand cmd1 = new TextInsertCommand(controller, model);
+                                cmd1.setAttributes(e.getOffset(), e.getLength());
+                                cmd.execute();
+                                //controller.addRedoCommand(cmd1);                                
 				textChangeFromEditor = false;
 			}
 		}

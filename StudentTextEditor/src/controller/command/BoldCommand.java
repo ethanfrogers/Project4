@@ -14,10 +14,18 @@ import model.TextEditorModel;
 public class BoldCommand implements Command {
     
     TextEditorController controller;
-    TextEditorModel model;
     private int start, length;
     
-    public int getStart() {
+   
+   
+    
+    
+    
+    public BoldCommand(TextEditorController t){
+        controller = t;
+    }
+    
+     public int getStart() {
         return start;
     }
 
@@ -33,16 +41,14 @@ public class BoldCommand implements Command {
         this.length = length;
     }
     
-    
-    
-    public BoldCommand(TextEditorController t, TextEditorModel m){
-        controller = t;
-        model = m;
+    public void setAttributes(int start, int length){
+        this.start = start;
+        this.length = length;
     }
-
+    
     @Override
     public void execute() {
-        boolean state = model.isRangeBold(start, length);
+        boolean state = controller.getModelState(this, start, length);
         controller.setBold(start, length, !state);
     }
     

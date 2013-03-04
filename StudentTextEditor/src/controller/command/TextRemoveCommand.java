@@ -11,12 +11,15 @@ import model.TextEditorModel;
  *
  * @author efrogers
  */
-public class UnderlineCommand implements Command{
+public class TextRemoveCommand implements Command {
     TextEditorController controller;
-    private int start, length;
+    TextEditorModel model;
     
-    public UnderlineCommand(TextEditorController t){
-        controller = t;
+    int start, length;
+
+    public TextRemoveCommand(TextEditorController controller, TextEditorModel model) {
+        this.controller = controller;
+        this.model = model;
     }
 
     public int getStart() {
@@ -35,10 +38,13 @@ public class UnderlineCommand implements Command{
         this.length = length;
     }
     
+    public void setAttributes(int start, int length){
+        this.start = start;
+        this.length = length;
+    }
+
     @Override
     public void execute() {
-        boolean state = controller.getModelState(this, start, length);
-        controller.setUnderline(start, length, !state);
+        controller.textRemoved(start, length);
     }
-    
 }
