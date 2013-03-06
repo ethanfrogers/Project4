@@ -22,6 +22,10 @@ public class RedoCommand implements Command {
     public void execute() {
         controller.redo();
     }
+
+    @Override
+    public void setAttributes(int start, int length) {
+    }
     
     
     

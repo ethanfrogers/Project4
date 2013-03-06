@@ -2,14 +2,7 @@ package view;
 
 import controller.TextEditorController;
 import controller.TextEditorView;
-import controller.command.BoldCommand;
-import controller.command.ItalicCommand;
-import controller.command.MacroCommand;
-import controller.command.RedoCommand;
-import controller.command.TextInsertCommand;
-import controller.command.TextRemoveCommand;
-import controller.command.UnderlineCommand;
-import controller.command.UndoCommand;
+import controller.command.*;
 
 import model.StyleList;
 import model.TextEditorModel;
@@ -71,6 +64,7 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 	private RedoActionListener redoAct;
         private ColorActionListener colorAct;
         private MacroActionListener macroAct;
+        private RecordMacroActionListener recordAct;
         
 	
 	private FileNameExtensionFilter plainTextFilter;
@@ -81,6 +75,8 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 	
 	private boolean textChangeFromEditor;
 	private boolean updatingFromModel;
+        
+        private MacroCommand macro;
 	
 	public TextEditorPanel(TextEditorController controllerRef, TextEditorModel modelRef)
 	{
@@ -103,11 +99,15 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 		
 		model = modelRef;
 		model.addObserver(this);
+                
+                macro = new MacroCommand(controller);
+                macro.useDefaultMacro(0, 0);
+                
 	}
 	
 	private void initializePanel()
 	{
-		setPreferredSize(new Dimension(525, 400));
+		setPreferredSize(new Dimension(625, 400));
 		setLayout(new BorderLayout());
 	}
 	
@@ -120,6 +120,7 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 		redoAct = new RedoActionListener();
                 colorAct = new ColorActionListener();
                 macroAct = new MacroActionListener();
+                recordAct = new RecordMacroActionListener();
 	}
 	private KeyStroke getControlPlusKey(int keyEventVal)
 	{
@@ -136,6 +137,7 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 		topButtons.add(createButton("format-text-italic.png", italicAct));
 		topButtons.add(createButton("format-text-underline.png", underlineAct));
                 topButtons.add(createButton("command-macro.png",macroAct));
+                topButtons.add(createButton("command-record.png",recordAct));
 		
 		undoButton = createButton("edit-undo.png", undoAct);
 		redoButton = createButton("edit-redo.png", redoAct);
@@ -420,11 +422,24 @@ public class TextEditorPanel extends JPanel implements TextEditorView, Observer
 
                 @Override
                 public void actionPerformed(ActionEvent ae) {
-                    MacroCommand cmd = new MacroCommand(controller);
-                    cmd.useDefaultMacro(text.getSelectionStart(), text.getSelectionLength());
-                    controller.addUndoCommand(cmd);
-                    cmd.execute();
+                        macro.setAttributes(text.getSelectionStart(), text.getSelectionLength());
+                        macro.execute();
+                        controller.addUndoCommand(macro);
+                        text.requestFocus();                    
                 }
+            
+        }
+        
+        private class RecordMacroActionListener extends AbstractAction implements ActionListener
+        {
+
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    macro = new MacroCommand(controller);
+                    MacroRecorder recorder = new MacroRecorder(macro);
+                }
+
+                
             
         }
         

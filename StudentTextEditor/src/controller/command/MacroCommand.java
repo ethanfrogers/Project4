@@ -6,13 +6,14 @@ package controller.command;
 
 import controller.TextEditorController;
 import java.util.ArrayList;
-import model.TextEditorModel;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  *
  * @author efrogers
  */
-public class MacroCommand implements Command{
+public class MacroCommand implements Command, Observer{
 
     ArrayList<Command> macro = new <Command>ArrayList();
     
@@ -39,11 +40,27 @@ public class MacroCommand implements Command{
         BoldCommand bld = new BoldCommand(controller);
         bld.setAttributes(start,length);
         
-        ItalicCommand itl = new ItalicCommand(controller);
-        itl.setAttributes(start, length);
+        UnderlineCommand under = new UnderlineCommand(controller);
+        under.setAttributes(start, length);
         
         addCommand(bld);
-        addCommand(itl);
+        addCommand(under);
+    }
+    
+    public void setAttributes(int start, int length)
+    {
+        for(Command c: macro)
+        {
+            c.setAttributes(start, length);
+        }
+    }
+    
+    public void recordMacro(ArrayList<Command> list)
+    {
+        for(Command c:list)
+        {
+            addCommand(c);
+        }
     }
     
     @Override
@@ -51,6 +68,12 @@ public class MacroCommand implements Command{
         for(Command c: macro){
             c.execute();
         }
+    }
+
+    @Override
+    public void update(Observable o, Object o1) {
+        Command c = (Command) o1;
+        addCommand(c);
     }
     
     

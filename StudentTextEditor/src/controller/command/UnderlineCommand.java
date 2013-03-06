@@ -35,6 +35,12 @@ public class UnderlineCommand implements Command{
         this.length = length;
     }
     
+    public void setAttributes(int start, int length)
+    {
+        this.start = start;
+        this.length = length;
+    }
+    
     @Override
     public void execute() {
         boolean state = controller.getModelState(this, start, length);

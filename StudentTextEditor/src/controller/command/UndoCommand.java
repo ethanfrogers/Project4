@@ -22,6 +22,10 @@ public class UndoCommand implements Command {
     public void execute() {
         controller.undo();
     }
+
+    @Override
+    public void setAttributes(int start, int length) {
+    }
     
     
     

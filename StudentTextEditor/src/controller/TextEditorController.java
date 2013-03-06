@@ -1,7 +1,8 @@
 package controller;
 
 import controller.command.Command;
-import java.util.ArrayList;
+import java.util.EmptyStackException;
+import java.util.Stack;
 
 import model.TextEditorModel;
 import model.StyleList;
@@ -13,8 +14,9 @@ public class TextEditorController
 	private TextEditorView view;
 	
 	private TextEditorModel model;
-	private ArrayList<Command> undoCommands = new <Command>ArrayList();
-        private ArrayList<Command> redoCommands = new <Command>ArrayList();
+	private Stack<Command> undoCommands = new <Command>Stack();
+        private Stack<Command> redoCommands = new <Command>Stack();
+        
         
 	public TextEditorController(TextEditorModel modelRef)
 	{
@@ -22,20 +24,21 @@ public class TextEditorController
 		setModel(modelRef);
 	}
         
+        
         public void addUndoCommand(Command c){
-            undoCommands.add(c);
+            undoCommands.push(c);
         }
        
-        public void removeUndoCommand(Command c){
-            undoCommands.remove(c);
+        public Command removeUndoCommand(){
+            return undoCommands.pop();
         }
         
         public void addRedoCommand(Command c){
-            redoCommands.add(c);
+            redoCommands.push(c);
         }
         
-        public void removeRedoCommand(Command c){
-            redoCommands.remove(c);
+        public Command removeRedoCommand(){
+            return redoCommands.pop();
         }
         
 	public void setView(TextEditorView viewRef)
@@ -72,13 +75,13 @@ public class TextEditorController
 	{
             try
             {
-                int index = undoCommands.size() - 1;
-                Command cmd = undoCommands.get(index);
+                Command cmd = removeUndoCommand();
                 cmd.execute();
                 addRedoCommand(cmd);
-                removeUndoCommand(cmd);
+                
+                
             }
-            catch(ArrayIndexOutOfBoundsException iob){
+            catch(EmptyStackException ese){
                 System.out.println("NO UNDO COMMANDS");
             }
            
@@ -88,13 +91,12 @@ public class TextEditorController
 	{
             try
             {
-                int index = redoCommands.size() - 1;
-                Command cmd = redoCommands.get(index);
+                Command cmd = removeRedoCommand();
                 cmd.execute();
                 addUndoCommand(cmd);
-                removeRedoCommand(cmd);
+                
             }
-            catch(ArrayIndexOutOfBoundsException iob)
+            catch(EmptyStackException ese )
             {
                 System.out.println("NO REDO COMMANDS");
             }
